@@ -4,41 +4,121 @@ import java.util.*;
 
 public class Main {
     public static List<Student> studentList;
+    public static Scanner scanner;
+
     public static void main(String[] args) {
         System.out.println("**************Student Management System**************");
 
         Student.clearStudentRegistry(); // ✅ fresh start every run
         studentList = new ArrayList<>();
+        //input from console
+        scanner = new Scanner(System.in);
+        while (true) {
+            System.out.println("Select Options 1 to 8...");
+            System.out.println("1. Register a Student");
+            System.out.println("2. Find Student by Student Id");
+            System.out.println("3. Find Student by Student Name");
+            System.out.println("4. Sort Student by Age");
+            System.out.println("5. Sort Student by Name");
+            System.out.println("6. Sort Student Student ID");
+            System.out.println("7. Print Student details");
+            System.out.println("8. Exit");
 
-        addStudent("John Doe", 19, "S-101");
-        addStudent("Jane", 19, "S-102");
-        addStudent("Dan", 28, "S-103");
-        addStudent("Dane", 22, "S-100");
-        addStudent("Uz", 35, "S-103"); //should throw error
+            int option = scanner.nextInt();
 
-        // Enroll courses after students are created
-        if (!studentList.isEmpty()) studentList.getFirst().enrollCourse("Java");
-        if (!studentList.isEmpty()) studentList.get(0).enrollCourse("Dev Ops"); // ✅ capital O
-        if (!studentList.isEmpty()) studentList.get(0).enrollCourse("Java");
-        if (!studentList.isEmpty()) studentList.get(1).enrollCourse("Java");
-        if (studentList.size() > 2) studentList.get(2).enrollCourse("Java");
+            switch (option) {
+                case 1:
+                    addStudent(scanner);
+                    break;
+                case 2:
+                    findStudentById(scanner);
+                    break;
+                case 3:
+                    findStudentByName(scanner);
+                    break;
+                case 4:
+                    sortByAge();
+                    break;
+                case 5:
+                    sortByName();
+                    break;
+                case 6:
+                    sortByStudentId();
+                    break;
+                case 7:
+                    printAllStudentDetail();
+                    break;
+                case 8:
+                    exitApp();
+                    break;
+                default:
+                    System.out.println("Invalid Option selected ...Please select options from 1 to 8");
+            }
+        }
+    }
 
+    private static void printAllStudentDetail() {
+        if (!studentList.isEmpty()){
+            System.out.println("___________________PRINT ALL STUDENT DETAILS___________________");
+            for(Student student:studentList)
+                {
+                    student.printStudentInfo();
+                 }
+                System.out.println("----------********----------");
+            }else{
+                System.err.println("Student list is empty ...no data found");
+            }
+    }
+    //quit
+    private static void exitApp() {
+        System.exit(0);
+    }
 
-      Student result =  findStudentById("S-103");
-      System.out.println("Results "+ result);
+    private static void findStudentByName(Scanner scanner3) {
+        Student studentFound = null;
+        System.out.println("Enter Student name... ");
+        String studentName = scanner3.next();
+        try {
+            studentFound = (studentList.stream().filter(student -> student.getName().equalsIgnoreCase(studentName))
+                    .findFirst()
+                    .orElseThrow(() -> new RuntimeException("No data found")));
+        } catch (RuntimeException e) {
+            System.err.println("Student Name is not found");
+        }
+        assert studentFound != null;
+        studentFound.printStudentInfo();
+    }
+    //Registr a student
+    private static void addStudent(Scanner scanner1) {
+        System.out.println("Enter Student Name ...");
+        String name = scanner1.next();
+        System.out.println("Enter Student Age...");
+        int age = scanner1.nextInt();
+        System.out.println("Enter student id.. ");
+        String studentId = scanner1.next();
+        Student student = new Student(name, age, studentId);
+        while(true) {
+            System.out.println("Enter course ... To exit type done");
+            String courseName = scanner1.next();
+            if(courseName.equalsIgnoreCase("done")){
+                break;
+            }
+            student.enrollCourse(courseName);
+        }
+        try {
 
-      sortByName();
-      sortByStudentId();
-      sortByAge();
-
-
-
+            studentList.add(student);
+            System.out.println("Student added successfully");
+        } catch (IllegalArgumentException e) {
+            System.err.println("Student not added: " + e.getMessage());
+        }
+        student.printStudentInfo();
     }
 
     // ✅ Correct - compares two ages against each other
     private static void sortByAge() {
         Comparator<Student> studentAgeComparator = (o1, o2) -> Integer.compare(o1.getAge(), o2.getAge());
-        Collections.sort(studentList, studentAgeComparator);
+        studentList.sort(studentAgeComparator);
         System.out.println(studentList);
     }
 
@@ -49,53 +129,29 @@ public class Main {
                 return o1.getStudentId().compareTo(o2.getStudentId());
             }
         };
-        Collections.sort(studentList,studentIdComparator);
+        studentList.sort(studentIdComparator);
         System.out.println(studentList);
     }
 
     private static void sortByName() {
-        /* Comparator class has method called compare which will compare two object lexographically(in order of alphabet from Student object)
-        * Collection call will go through studentList array to sort by getName method
-        * once it is sorted student list will be printed alphabetically
-        *  */
-//        Comparator<Student> studentNameComparator = new Comparator<Student>() {
-//            @Override
-//            public int compare(Student o1, Student o2) {
-//                return o1.getName().compareTo(o2.getName());
-//            }
-//        };
-        //same code can be written in Lambda
         Comparator<Student> studentNameComparator = (o1,o2) -> o1.getName().compareTo(o2.getName());
-        Collections.sort(studentList,studentNameComparator);
+        studentList.sort(studentNameComparator);
         System.out.println(studentList);
     }
 
-    public static Student findStudentById(String studentId) {
-        // what is happening here , we give a list (studentList) to stream which will filter based on the filter studentId,
-        // it will search for studentId provided
-        // findFirst will return the object found first with that student id by filtering through the studentList and
-        // store that in results variable which will in turn will be stored in result variable(under main method)
-        // and print when method findStudentById is called in main method
-        // else if it does not find the student id then will throw a run time exception
-        Student results = null; // since Student is non-primitive data type it has to be initialized to default value
+    public static void findStudentById(Scanner scanner2) {
+        Student studentFound = null;
+        System.out.println("Enter Student ID...");
+        String studentId = scanner2.next();
         try {
-            results = studentList.stream().filter(x -> x.getStudentId().equalsIgnoreCase(studentId))
+            studentFound = studentList.stream().filter(student -> student.getStudentId().equalsIgnoreCase(studentId))
                     .findFirst()
                     .orElseThrow(() -> new RuntimeException("No data found"));
-
 
         } catch (RuntimeException e) {
             System.err.println("StudentId is not found");
         }
-        return results;
-    }
-
-    private static void addStudent(String name, int age, String studentId) {
-        try {
-            Student student = new Student(name, age, studentId);
-            studentList.add(student);
-        } catch (IllegalArgumentException e) {
-            System.err.println("Student not added: " + e.getMessage());
-        }
+        assert studentFound != null;
+        studentFound.printStudentInfo();
     }
 }
