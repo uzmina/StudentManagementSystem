@@ -71,6 +71,7 @@ public class Main {
     }
     //quit
     private static void exitApp() {
+        System.out.println("Exiting app...Good Bye");
         System.exit(0);
     }
 
@@ -78,15 +79,19 @@ public class Main {
         Student studentFound = null;
         System.out.println("Enter Student name... ");
         String studentName = scanner3.next();
-        try {
-            studentFound = (studentList.stream().filter(student -> student.getName().equalsIgnoreCase(studentName))
-                    .findFirst()
-                    .orElseThrow(() -> new RuntimeException("No data found")));
-        } catch (RuntimeException e) {
-            System.err.println("Student Name is not found");
+        if(!studentList.isEmpty()) {
+            try {
+                studentFound = (studentList.stream().filter(student -> student.getName().equalsIgnoreCase(studentName))
+                        .findFirst()
+                        .orElseThrow(() -> new RuntimeException("No data found")));
+            } catch (RuntimeException e) {
+                System.err.println("Student Name is not found");
+            }
+            assert studentFound != null;
+            studentFound.printStudentInfo();
+        }else{
+            System.err.println("Student list is empty...no data found");
         }
-        assert studentFound != null;
-        studentFound.printStudentInfo();
     }
     //Registr a student
     private static void addStudent(Scanner scanner1) {
@@ -117,32 +122,45 @@ public class Main {
 
     // ✅ Correct - compares two ages against each other
     private static void sortByAge() {
-        Comparator<Student> studentAgeComparator = (o1, o2) -> Integer.compare(o1.getAge(), o2.getAge());
-        studentList.sort(studentAgeComparator);
-        System.out.println(studentList);
+        if(!studentList.isEmpty()) {
+            Comparator<Student> studentAgeComparator = (o1, o2) -> Integer.compare(o1.getAge(), o2.getAge());
+            studentList.sort(studentAgeComparator);
+            System.out.println(studentList);
+        }else{
+            System.err.println("Student list is empty... no data found");
+        }
     }
 
     private static void sortByStudentId() {
-        Comparator<Student> studentIdComparator = new Comparator<Student>() {
-            @Override
-            public int compare(Student o1, Student o2) {
-                return o1.getStudentId().compareTo(o2.getStudentId());
-            }
-        };
-        studentList.sort(studentIdComparator);
-        System.out.println(studentList);
+        if(!studentList.isEmpty()) {
+            Comparator<Student> studentIdComparator = new Comparator<Student>() {
+                @Override
+                public int compare(Student o1, Student o2) {
+                    return o1.getStudentId().compareTo(o2.getStudentId());
+                }
+            };
+            studentList.sort(studentIdComparator);
+            System.out.println(studentList);
+        }else{
+            System.err.println("Student list is empty... no data found");
+        }
     }
 
     private static void sortByName() {
-        Comparator<Student> studentNameComparator = (o1,o2) -> o1.getName().compareTo(o2.getName());
-        studentList.sort(studentNameComparator);
-        System.out.println(studentList);
+        if(!studentList.isEmpty()) {
+            Comparator<Student> studentNameComparator = (o1, o2) -> o1.getName().compareTo(o2.getName());
+            studentList.sort(studentNameComparator);
+            System.out.println(studentList);
+        }else{
+            System.err.println("Student list is empty... no data found");
+        }
     }
 
     public static void findStudentById(Scanner scanner2) {
         Student studentFound = null;
         System.out.println("Enter Student ID...");
         String studentId = scanner2.next();
+        if(!studentList.isEmpty()){
         try {
             studentFound = studentList.stream().filter(student -> student.getStudentId().equalsIgnoreCase(studentId))
                     .findFirst()
@@ -153,5 +171,8 @@ public class Main {
         }
         assert studentFound != null;
         studentFound.printStudentInfo();
-    }
+    }else{
+            System.err.println("Student list is empty... no data found");
+        }
+        }
 }
